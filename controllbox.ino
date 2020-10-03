@@ -18,21 +18,6 @@ int geometric[6] = {1, 2, 4, 8, 16, 32};
 int rotateNum = 0;
 int countNum = 0;
 
-//ps2
-int horzPin = A6;  // Analog output of horizontal joystick pin
-int vertPin = A7;  // Analog output of vertical joystick pin
-int selPin = 9;  // select button pin of joystick
-
-
-int vertZero, horzZero;  // Stores the initial value of each axis, usually around 512
-int vertValue, horzValue;  // Stores current analog output of each axis
-const int sensitivity = 200;  // Higher sensitivity value = slower mouse, should be <= about 500
-int mouseClickFlag = 0;
-
-
-//int invertMouse = 1;        //Invert joystick based on orientation
-int invertMouse = -1;         //Noninverted joystick based on orientation
-
 void setup() {
   Serial.begin(9600);
 
@@ -45,18 +30,21 @@ void setup() {
   pinMode(countSwitchPin[4], INPUT_PULLUP);
   pinMode(countSwitchPin[5], INPUT_PULLUP);
   pinMode(onOffSwitch, INPUT_PULLUP);
+}
 
-  //ps2
-  pinMode(horzPin, INPUT);  // Set both analog pins as inputs
-  pinMode(vertPin, INPUT);
-  pinMode(selPin, INPUT);  // set button select pin as input
-  digitalWrite(selPin, HIGH);  // Pull button select pin high
-  delay(1000);  // short delay to let outputs settle
-  vertZero = analogRead(vertPin);  // get the initial values
-  horzZero = analogRead(horzPin);  // Joystick should be in neutral position when reading these
+void turnoff(){
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('r');
+  Keyboard.releaseAll();
+  delay(100);
 
-  Mouse.begin(); //Init mouse emulation
-  Keyboard.begin(); //Init keyboard emulation
+  Keyboard.println("cmd");
+  delay(100);
+  Keyboard.println("shutdown -f -s -t 0");
+  delay(100);
+  Keyboard.press(KEY_LEFT_ALT);
+  Keyboard.press(KEY_F4);
+  Keyboard.releaseAll();
 }
 
 void loop() {
@@ -68,7 +56,15 @@ void loop() {
       break;
     }
   }
+  
+  if(onOffSwitch==LOW){
 
+
+   if(onOffSwitch==LOW){
+    turnoff();
+   }
+  }
+  
   if (digitalRead(key[0]) == LOW || digitalRead(key[1]) == LOW || digitalRead(key[2]) == LOW) {
     int rotateSwitch[3] = {digitalRead(rotateSwitchPin[0]), digitalRead(rotateSwitchPin[1]), digitalRead(rotateSwitchPin[2])};
     int countSwitch[6] = {digitalRead(countSwitchPin[0]), digitalRead(countSwitchPin[1]), digitalRead(countSwitchPin[2]), digitalRead(countSwitchPin[3]), digitalRead(countSwitchPin[4]), digitalRead(countSwitchPin[5]) };
@@ -1713,58 +1709,6 @@ void loop() {
             }
             break;
         }
-        break;
-    }
-  }
-
-  //ps2
-  vertValue = analogRead(vertPin) - vertZero;  // read vertical offset
-  horzValue = analogRead(horzPin) - horzZero;  // read horizontal offset
-
-  if (vertValue != 0)
-    Mouse.move(0, (invertMouse * (vertValue / sensitivity)), 0); // move mouse on y axis
-  if (horzValue != 0)
-    Mouse.move((invertMouse * (horzValue / sensitivity)), 0, 0); // move mouse on x axis
-
-  if ((digitalRead(selPin) == 0) && (!mouseClickFlag))  // if the joystick button is pressed
-  {
-    switch (rotateNum) {
-      case 0:
-        mouseClickFlag = 1;
-        Mouse.release(MOUSE_MIDDLE);  // click the middle button down
-        break;
-      case 1:
-        mouseClickFlag = 1;
-        Mouse.release(MOUSE_LEFT);  // click the left button down
-        break;
-      case 2:
-        mouseClickFlag = 1;
-        Mouse.release(MOUSE_RIGHT);  // click the lright button down
-        break;
-      case 3:
-        mouseClickFlag = 1;
-        Mouse.release(MOUSE_LEFT);  // click the left button down
-        break;
-    }
-  }
-  else if ((digitalRead(selPin)) && (mouseClickFlag)) // if the joystick button is not pressed
-  {
-    switch (rotateNum) {
-      case 0:
-        mouseClickFlag = 0;
-        Mouse.release(MOUSE_MIDDLE);  // release the middle button
-        break;
-      case 1:
-        mouseClickFlag = 0;
-        Mouse.release(MOUSE_LEFT);  // release the left button
-        break;
-      case 2:
-        mouseClickFlag = 0;
-        Mouse.release(MOUSE_RIGHT);  // release the right button
-        break;
-      case 3:
-        mouseClickFlag = 0;
-        Mouse.release(MOUSE_LEFT);  // release the left button
         break;
     }
   }
