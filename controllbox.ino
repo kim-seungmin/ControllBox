@@ -17,7 +17,7 @@ int countSwitchPin[6] = {A0, A1, A2, A3, A4, A5};
 int geometric[6] = {1, 2, 4, 8, 16, 32};
 int rotateNum = 0;
 int countNum = 0;
-
+int offCountTime[31]={100,100,100,100,100, 100,100,100,100,100, 100,100,100,100,100, 200,200,200, 200,300,300, 300,300,300,300,300, 400,400, 400,400, 900};
 void setup() {
   Serial.begin(9600);
 
@@ -56,12 +56,20 @@ void loop() {
       break;
     }
   }
-  
-  if(onOffSwitch==LOW){
 
-
-   if(onOffSwitch==LOW){
-    turnoff();
+  int offCount = 31;  
+  while(onOffSwitch==LOW){
+    if(offCount==0){
+      tone(9, 2793, 1000);
+      delay(1000);
+      if(onOffSwitch==LOW){
+        turnoff();
+      }
+    }else{
+      offCount--;
+      tone(9, 2793, 100);
+      delay(offCountTime[offCount]+100);    
+    }
    }
   }
   
